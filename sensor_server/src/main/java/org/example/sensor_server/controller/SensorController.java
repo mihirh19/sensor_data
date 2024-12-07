@@ -28,11 +28,12 @@ private final SimpMessagingTemplate simpMessagingTemplate;
     }
 
     @MessageMapping("/data")
-    @SendTo("/topic/sensor-updates")
-    public SensorData handleSensorData(@Payload SensorData data) {
+//    @SendTo("/topic/sensor-updates")
+    public void handleSensorData(@Payload SensorData data) {
 
         data.setTimestamp(LocalDateTime.now());
         repository.save(data); // Save to MongoDB
-        return data; // Broadcast the received data to all subscribers
+        simpMessagingTemplate.convertAndSend("/topic/sensor-updates/" + data.getNodeId(), data);
+//        return data; // Broadcast the received data to all subscribers
     }
 }

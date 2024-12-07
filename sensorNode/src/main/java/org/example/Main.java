@@ -44,7 +44,7 @@ public class Main {
             @Override
             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
                 System.out.println("Connected to server.");
-                session.subscribe("/topic/sensor-updates", new StompFrameHandler() {
+                session.subscribe("/topic/sensor-updates/" + nodeId, new StompFrameHandler() {
                     @Override
                     public Type getPayloadType(StompHeaders headers) {
                         return SensorData.class; // Type of message received
@@ -78,7 +78,7 @@ public class Main {
         System.out.println("Data sent: " + data);
     }
     public static void main(String[] args) throws Exception {
-        URI serverUri = new URI("ws://localhost:8081/sensor");
+        URI serverUri = new URI(System.getenv("SERVER_URL"));
         String nodeId = args.length > 0 ? args[0] : "node-1";
         Main sensorNode = new Main(nodeId, serverUri);
         sensorNode.connect(serverUri);

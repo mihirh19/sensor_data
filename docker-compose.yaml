@@ -10,6 +10,8 @@ services:
       - "8081:8081"
     networks:
       - sensor-network
+    env_file:
+      - ./sensor_server/.env
 
   sensor-client:
     build:
@@ -22,6 +24,7 @@ services:
       - SERVER_URL=ws://sensor-server:8081/sensor
     networks:
       - sensor-network
+    restart: always
 
 networks:
   sensor-network:

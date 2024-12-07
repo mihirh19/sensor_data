@@ -11,9 +11,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 @Configuration
 public class EnvConfig {
 
-    @Bean
-    public String mongoUri(){
+    public static void mongoUri(){
         Dotenv dotenv = Dotenv.configure().load();
-        return dotenv.get("MONGO_URI");
+        System.setProperty("MONGO_URI", dotenv.get("MONGO_URI"));
     }
+
 }
