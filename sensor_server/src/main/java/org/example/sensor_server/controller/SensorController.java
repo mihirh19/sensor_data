@@ -5,23 +5,34 @@ import org.example.sensor_server.entity.SensorData;
 import org.example.sensor_server.repository.SensorDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@RestController
-@RequestMapping("/api/sensors")
+@Controller
 public class SensorController {
+
     @Autowired
     private SensorDataRepository repository;
 
-    @PostMapping("/submit")
-    public ResponseEntity<String> saveSensorData(@RequestBody SensorData data){
+private final SimpMessagingTemplate simpMessagingTemplate;
+
+    public SensorController(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
+
+    @MessageMapping("/data")
+    @SendTo("/topic/sensor-updates")
+    public SensorData handleSensorData(@Payload SensorData data) {
+
         data.setTimestamp(LocalDateTime.now());
-        repository.save(data);
-        return ResponseEntity.ok("Data saved successfully");
+        repository.save(data); // Save to MongoDB
+        return data; // Broadcast the received data to all subscribers
     }
 }
